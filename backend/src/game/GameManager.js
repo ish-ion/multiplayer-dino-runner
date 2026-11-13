@@ -1,56 +1,66 @@
-/**
- * TODO: Implement Game Manager
- * 
- * Responsibilities:
- * - Game state management
- * - Game loop/tick
- * - Obstacle spawning
- * - Physics updates
- * - Collision detection
- */
+const { GAME_SETTINGS, OBSTACLE_CONFIG } = require('../../shared/consts');
 
 class GameManager {
   constructor() {
-    // TODO: Initialize game state
-    this.gameState = {
-      status: 'waiting', // waiting, playing, gameOver
-      currentPlayerId: null,
-      obstacles: [],
-      finishLinePosition: 0,
-      lastObstacleTime: 0
-    };
-    
-    // TODO: Initialize physics settings
-    this.gravity = 0;
-    this.playerSpeed = 0;
+    this.roomId = null;
+    this.isRunning = false;
+    this.lastObstacleTime = 0;
+    this.obstacles = [];
   }
   
-  // TODO: Update game state each tick
+  start(roomId) {
+    this.roomId = roomId;
+    this.isRunning = true;
+    this.obstacles = [];
+    this.lastObstacleTime = Date.now();
+  }
+  
   update(deltaTime) {
-    // Update obstacle positions
-    // Check for collisions
-    // Update player positions
-    // Check win conditions
+    this.spawnObstacles();
+    this.updateObstacles();
   }
   
-  // TODO: Create new obstacle
-  createObstacle(type, position) {
-    // Returns obstacle object
+  spawnObstacles() {
+    const now = Date.now();
+    
+    if (now - this.lastObstacleTime > OBSTACLE_CONFIG.SPAWN_INTERVAL) {
+      const type = Math.random() < 0.7 ? 'cactus' : 'pterodactyl';
+      const obstacle = {
+        id: Date.now() + Math.random(),
+        type: type,
+        position: { x: GAME_SETTINGS.CANVAS_WIDTH + 100, y: type === 'pterodactyl' ? 100 : 300 },
+        width: OBSTACLE_CONFIG.WIDTH,
+        height: OBSTACLE_CONFIG.HEIGHT,
+        passed: false
+      };
+      this.obstacles.push(obstacle);
+      this.lastObstacleTime = now;
+    }
   }
   
-  // TODO: Check collision between player and obstacle
-  checkCollision(player, obstacle) {
-    // Returns true if collision
+  updateObstacles() {
+    this.obstacles.forEach(obstacle => {
+      obstacle.position.x -= OBSTACLE_CONFIG.SPEED;
+    });
+    
+    this.obstacles = this.obstacles.filter(obs => obs.position.x + obs.width > -50);
   }
   
-  // TODO: Reset game state
-  reset() {
-    // Reset positions, obstacles, scores
+  isPlaying() {
+    return this.isRunning;
   }
   
-  // TODO: Get current game state for broadcast
   getState() {
-    return this.gameState;
+    return {
+      roomId: this.roomId,
+      status: this.isRunning ? 'playing' : 'waiting',
+      obstacles: this.obstacles,
+      finishLine: GAME_SETTINGS.FINISH_LINE_POSITION
+    };
+  }
+  
+  stop() {
+    this.isRunning = false;
   }
 }
 
