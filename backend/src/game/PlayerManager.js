@@ -1,4 +1,4 @@
-const { PLAYER_CONFIG } = require('../../shared/consts');
+const { PLAYER_CONFIG } = require('../../../shared/consts');
 
 class PlayerManager {
   constructor() {

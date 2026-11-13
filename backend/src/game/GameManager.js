@@ -1,4 +1,4 @@
-const { GAME_SETTINGS, OBSTACLE_CONFIG } = require('../../shared/consts');
+const { GAME_SETTINGS, OBSTACLE_CONFIG } = require('../../../shared/consts');
 
 class GameManager {
   constructor() {
